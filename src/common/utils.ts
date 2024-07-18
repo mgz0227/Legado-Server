@@ -2,7 +2,7 @@
  * @Author: Andy
  * @Date: 2024-07-18 10:03:45
  * @LastEditors: Andy andy.gui@gempoll.com
- * @LastEditTime: 2024-07-18 21:18:02
+ * @LastEditTime: 2024-07-18 21:32:49
  * @FilePath: /legado-harmony-server/src/common/utils.ts
  * @Description:
  */
@@ -44,10 +44,11 @@ const parseRule = (
 
   let result = $(book).find(selector);
 
+  let indexArr: number[] = [];
   if (typeof index === 'number' && index >= 0) {
     result = result.eq(index);
   } else if (Array.isArray(index)) {
-    result = result.eq(index[0]);
+    indexArr = index;
   }
 
   if (parts.length > 2) {
@@ -57,11 +58,14 @@ const parseRule = (
     if (typeof index === 'number' && index >= 0) {
       result = result.eq(index);
     } else if (Array.isArray(index)) {
-      result = result.eq(index[0]);
+      indexArr = index;
     }
   }
 
   if (attrPart === 'text' || attrPart === 'textNodes') {
+    if (indexArr.length > 0) {
+      return indexArr.map((index) => result.eq(index).text()).join(',');
+    }
     // 正则去除\n和空格符
     return result
       .text()
