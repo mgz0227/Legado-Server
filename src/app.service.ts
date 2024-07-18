@@ -2,8 +2,8 @@
  * @Author: Andy
  * @Date: 2024-07-17 19:08:15
  * @LastEditors: Andy andy.gui@gempoll.com
- * @LastEditTime: 2024-07-18 12:34:31
- * @FilePath: /server/src/app.service.ts
+ * @LastEditTime: 2024-07-18 14:03:08
+ * @FilePath: /legado-harmony-server/src/app.service.ts
  * @Description:
  */
 import { Injectable } from '@nestjs/common';
@@ -23,7 +23,14 @@ export class AppService {
     if (!data) return [];
     const { url, bookList, pageSize = 10, ...ruleParams } = data;
     const resp = await fetch(url);
+    if ([404, 500, 501, 502, 503].includes(resp.status)) {
+      throw new Error('请求失败');
+    }
+    if (resp.status === 401) {
+      throw new Error('权限不足');
+    }
     const htmlString = await resp.text();
+
     const $ = cheerio.load(htmlString);
     const bookListDom = analysisRules(
       $,
