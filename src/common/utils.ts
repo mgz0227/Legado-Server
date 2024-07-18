@@ -2,12 +2,36 @@
  * @Author: Andy
  * @Date: 2024-07-18 10:03:45
  * @LastEditors: Andy andy.gui@gempoll.com
- * @LastEditTime: 2024-07-18 11:52:51
- * @FilePath: /server/src/common/utils.ts
+ * @LastEditTime: 2024-07-18 21:18:02
+ * @FilePath: /legado-harmony-server/src/common/utils.ts
  * @Description:
  */
 import * as cheerio from 'cheerio';
 
+const getSelectorIndex = (
+  selectorPart: string,
+): [string, number | number[]] => {
+  let selector = '';
+  let index;
+  if (selectorPart.includes('.')) {
+    selector = selectorPart;
+    if (selectorPart.includes('.')) {
+      const indexStr = selectorPart.split('.').pop();
+      if (indexStr && !isNaN(Number(indexStr))) {
+        index = Number(indexStr);
+      } else if (indexStr?.includes(':')) {
+        index = indexStr.split(':').map((item) => Number(item));
+      }
+      selector = selector.replace(/(\.?)([a-zA-Z]+)\.\d+(?::\d+)?$/, '$1$2');
+    }
+  } else {
+    selector = selectorPart;
+  }
+  if (index === undefined) {
+    index = -1;
+  }
+  return [selector, index];
+};
 const parseRule = (
   $: cheerio.CheerioAPI,
   rule: string,
@@ -15,38 +39,36 @@ const parseRule = (
 ): string | undefined => {
   const parts = rule.split('@');
   const selectorPart = parts[0];
-  const attrPart = parts[1];
-
-  let selector = '';
-  let index = -1;
-
-  if (selectorPart.includes('.')) {
-    selector = selectorPart;
-    if (selectorPart.includes('.')) {
-      const indexStr = selectorPart.split('.').pop();
-      if (indexStr && !isNaN(Number(indexStr))) {
-        index = Number(indexStr);
-      }
-      selector = selector.replace(/\.\d+$/, '');
-    }
-  } else {
-    selector = selectorPart;
-  }
+  const attrPart = parts.at(-1);
+  const [selector, index] = getSelectorIndex(selectorPart);
 
   let result = $(book).find(selector);
 
-  if (index >= 0) {
+  if (typeof index === 'number' && index >= 0) {
     result = result.eq(index);
+  } else if (Array.isArray(index)) {
+    result = result.eq(index[0]);
   }
 
-  if (attrPart === 'text') {
+  if (parts.length > 2) {
+    const otherPart = parts[1];
+    const [selector, index] = getSelectorIndex(otherPart);
+    result = result.find(selector);
+    if (typeof index === 'number' && index >= 0) {
+      result = result.eq(index);
+    } else if (Array.isArray(index)) {
+      result = result.eq(index[0]);
+    }
+  }
+
+  if (attrPart === 'text' || attrPart === 'textNodes') {
     // 正则去除\n和空格符
     return result
       .text()
       .replaceAll(/[\n\s]/g, '')
       .trim();
   } else {
-    return result.attr(attrPart)?.trim();
+    return result.attr(attrPart ?? '')?.trim();
   }
 };
 const stringToRegex = (pattern: string): RegExp => {
