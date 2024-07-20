@@ -2,7 +2,7 @@
  * @Author: Andy
  * @Date: 2024-07-18 10:03:45
  * @LastEditors: Andy andy.gui@gempoll.com
- * @LastEditTime: 2024-07-18 21:32:49
+ * @LastEditTime: 2024-07-21 04:11:07
  * @FilePath: /legado-harmony-server/src/common/utils.ts
  * @Description:
  */
@@ -37,6 +37,11 @@ const parseRule = (
   rule: string,
   book?: cheerio.Element,
 ): string | undefined => {
+  const rules = rule.split('&&');
+  if (rules.length > 1) {
+    return rules.map((rule) => parseRule($, rule, book)).join('');
+  }
+
   const parts = rule.split('@');
   const selectorPart = parts[0];
   const attrPart = parts.at(-1);
@@ -61,8 +66,15 @@ const parseRule = (
       indexArr = index;
     }
   }
+  const selectorArr = selector.split(',');
 
-  if (attrPart === 'text' || attrPart === 'textNodes') {
+  if (selectorArr.length > 1) {
+    return selectorArr
+      .map((selector) => parseRule($, `${selector}@${attrPart}`, book))
+      .join(',');
+  }
+
+  if (['text', 'textNodes'].includes(attrPart || '')) {
     if (indexArr.length > 0) {
       return indexArr.map((index) => result.eq(index).text()).join(',');
     }
@@ -71,6 +83,8 @@ const parseRule = (
       .text()
       .replaceAll(/[\n\s]/g, '')
       .trim();
+  } else if (attrPart === 'html') {
+    return result.html() || '';
   } else {
     return result.attr(attrPart ?? '')?.trim();
   }
@@ -80,6 +94,9 @@ const stringToRegex = (pattern: string): RegExp => {
   return regexPattern;
 };
 export const removeDomain = (url: string) => {
+  if (!isValidUrl(url)) {
+    return url;
+  }
   const urlObj = new URL(url);
   return urlObj.pathname;
 };
@@ -108,11 +125,26 @@ export const analysisRules = (
 
   const [rule, ...reg] = rules.split('##');
   if (!book) {
+    const startArr = rule.split('||');
+    if (startArr.length > 1) {
+      let result: cheerio.Cheerio<cheerio.Element> | undefined;
+      for (let i = 0; i < startArr.length; i++) {
+        const resultInfo = analysisRules(
+          $,
+          startArr[i],
+        ) as cheerio.Cheerio<cheerio.Element>;
+        if (resultInfo.length > 0) {
+          result = resultInfo;
+          break;
+        }
+      }
+      return result;
+    }
     const [startParts, endParts] = rule.split('@');
     if (endParts) {
       return $(startParts).find(endParts);
     }
-    return $(startParts);
+    return $(startParts.replace('id.', '#'));
   }
   // rule有以下规则，转化为=> 后面格式
   // .item@text' => $(book).find('.item').text()
@@ -121,13 +153,19 @@ export const analysisRules = (
   // a@href => $(book).find('a').attr('href')
   // img@src => $(book).find('img').attr('src')
   // a@text => $(book).find('a').text()
+  const ruleArr: string[] = rule.split('||');
+
+  if (ruleArr.length >= 2) {
+    return ruleArr.map((rule) => parseRule($, rule, book)).join('');
+  }
+
   if (reg.length === 0 || reg[0] === '') {
     return parseRule($, rule, book);
   }
   // 若是存在匹配规则，则去掉匹配规则中的内容
   if (reg.length === 1) {
     return parseRule($, rule, book)
-      ?.replace(reg[0], '')
+      ?.replace(new RegExp(reg[0], 'g'), '')
       ?.replace(reg[0].replace('.', ':'), '')
       ?.replace(reg[0].replace('.', '：'), '')
       .trim();
