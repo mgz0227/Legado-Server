@@ -1,12 +1,13 @@
 /*
  * @Author: Andy
  * @Date: 2024-07-17 19:08:15
- * @LastEditors: Andy andy.gui@gempoll.com
- * @LastEditTime: 2024-07-18 11:53:17
- * @FilePath: /server/src/app.controller.ts
+ * @LastEditors: Andy 454846659@qq.com
+ * @LastEditTime: 2024-09-04 11:03:22
+ * @FilePath: /legado-harmony-server/src/app.controller.ts
  * @Description:
  */
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+
 import { AppService } from './app.service';
 
 @Controller()
@@ -16,10 +17,5 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
-  }
-
-  @Post('analysisRules')
-  async postAnalysisRules(@Body() data: Record<string, any>) {
-    return await this.appService.analysisRules(data);
   }
 }

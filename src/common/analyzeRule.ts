@@ -1,15 +1,8 @@
 import * as jp from 'jsonpath'; // 用于解析JSON路径
-import {
-  BookInfoRule,
-  SearchBook,
-  serachRuleData,
-} from 'src/app.search.service';
+import { BookInfoRule, SearchBook, serachRuleData } from 'src/modules/search/search.dao';
 import * as vm from 'vm'; // 用于执行JS表达式
 class AnalyzeRule {
-  async parseBooks(
-    data: any,
-    searchRule: serachRuleData,
-  ): Promise<SearchBook[]> {
+  async parseBooks(data: any, searchRule: serachRuleData): Promise<SearchBook[]> {
     let books: any;
     try {
       books = await this.getBookListRule(data, searchRule.bookList);
@@ -28,28 +21,13 @@ class AnalyzeRule {
           const searchBook = new SearchBook();
           searchBook.author = await this.parseField(subBook, searchRule.author);
           searchBook.kind = await this.parseField(subBook, searchRule.kind);
-          searchBook.bookUrl = await this.parseField(
-            subBook,
-            searchRule.bookUrl,
-          );
-          searchBook.coverUrl = await this.parseField(
-            subBook,
-            searchRule.coverUrl,
-          );
+          searchBook.bookUrl = await this.parseField(subBook, searchRule.bookUrl);
+          searchBook.coverUrl = await this.parseField(subBook, searchRule.coverUrl);
           searchBook.intro = await this.parseField(subBook, searchRule.intro);
-          searchBook.lastChapter = await this.parseField(
-            subBook,
-            searchRule.lastChapter,
-          );
+          searchBook.lastChapter = await this.parseField(subBook, searchRule.lastChapter);
           searchBook.name = await this.parseField(subBook, searchRule.name);
-          searchBook.wordCount = await this.parseField(
-            subBook,
-            searchRule.wordCount,
-          );
-          searchBook.updateTime = await this.parseField(
-            subBook,
-            searchRule.updateTime,
-          );
+          searchBook.wordCount = await this.parseField(subBook, searchRule.wordCount);
+          searchBook.updateTime = await this.parseField(subBook, searchRule.updateTime);
           bookList.push(searchBook);
         }
       } else {
@@ -60,29 +38,17 @@ class AnalyzeRule {
         searchBook.coverUrl = await this.parseField(book, searchRule.coverUrl);
         searchBook.intro = await this.parseField(book, searchRule.intro);
         searchBook.kind = await this.parseField(book, searchRule.kind);
-        searchBook.lastChapter = await this.parseField(
-          book,
-          searchRule.lastChapter,
-        );
+        searchBook.lastChapter = await this.parseField(book, searchRule.lastChapter);
         searchBook.name = await this.parseField(book, searchRule.name);
-        searchBook.wordCount = await this.parseField(
-          book,
-          searchRule.wordCount,
-        );
-        searchBook.updateTime = await this.parseField(
-          book,
-          searchRule.updateTime,
-        );
+        searchBook.wordCount = await this.parseField(book, searchRule.wordCount);
+        searchBook.updateTime = await this.parseField(book, searchRule.updateTime);
         bookList.push(searchBook);
       }
     }
     return bookList;
   }
 
-  async parseBookInfo(
-    data: any,
-    bookInfoRule: BookInfoRule,
-  ): Promise<SearchBook[]> {
+  async parseBookInfo(data: any, bookInfoRule: BookInfoRule): Promise<SearchBook[]> {
     let books: any;
     try {
       books = await this.getBookListRule(data, bookInfoRule.init);
@@ -100,37 +66,16 @@ class AnalyzeRule {
         for (const subBook of book) {
           const searchBook = new SearchBook();
           searchBook.name = await this.parseField(subBook, bookInfoRule.name);
-          searchBook.author = await this.parseField(
-            subBook,
-            bookInfoRule.author,
-          );
+          searchBook.author = await this.parseField(subBook, bookInfoRule.author);
           // searchBook.intro = await this.parseField(subBook, bookInfoRule.intro);
           // searchBook.kind = await this.parseField(subBook, bookInfoRule.kind);
           // searchBook.lastChapter = await this.parseField(subBook, bookInfoRule.lastChapter);
-          searchBook.updateTime = await this.parseField(
-            subBook,
-            bookInfoRule.updateTime,
-          );
-          searchBook.coverUrl = await this.parseField(
-            subBook,
-            bookInfoRule.coverUrl,
-          );
-          searchBook.tocUrl = await this.parseField(
-            subBook,
-            bookInfoRule.coverUrl,
-          );
-          searchBook.wordCount = await this.parseField(
-            subBook,
-            bookInfoRule.wordCount,
-          );
-          searchBook.canReName = await this.parseField(
-            subBook,
-            bookInfoRule.canReName,
-          );
-          searchBook.downloadUrls = await this.parseField(
-            subBook,
-            bookInfoRule.downloadUrls,
-          );
+          searchBook.updateTime = await this.parseField(subBook, bookInfoRule.updateTime);
+          searchBook.coverUrl = await this.parseField(subBook, bookInfoRule.coverUrl);
+          searchBook.tocUrl = await this.parseField(subBook, bookInfoRule.coverUrl);
+          searchBook.wordCount = await this.parseField(subBook, bookInfoRule.wordCount);
+          searchBook.canReName = await this.parseField(subBook, bookInfoRule.canReName);
+          searchBook.downloadUrls = await this.parseField(subBook, bookInfoRule.downloadUrls);
           bookList.push(searchBook);
         }
       } else {
@@ -141,27 +86,12 @@ class AnalyzeRule {
         // searchBook.intro = await this.parseField(book, bookInfoRule.intro);
         // searchBook.kind = await this.parseField(book, bookInfoRule.kind);
         // searchBook.lastChapter = await this.parseField(book, bookInfoRule.lastChapter);
-        searchBook.updateTime = await this.parseField(
-          book,
-          bookInfoRule.updateTime,
-        );
-        searchBook.coverUrl = await this.parseField(
-          book,
-          bookInfoRule.coverUrl,
-        );
+        searchBook.updateTime = await this.parseField(book, bookInfoRule.updateTime);
+        searchBook.coverUrl = await this.parseField(book, bookInfoRule.coverUrl);
         searchBook.tocUrl = await this.parseField(book, bookInfoRule.coverUrl);
-        searchBook.wordCount = await this.parseField(
-          book,
-          bookInfoRule.wordCount,
-        );
-        searchBook.canReName = await this.parseField(
-          book,
-          bookInfoRule.canReName,
-        );
-        searchBook.downloadUrls = await this.parseField(
-          book,
-          bookInfoRule.downloadUrls,
-        );
+        searchBook.wordCount = await this.parseField(book, bookInfoRule.wordCount);
+        searchBook.canReName = await this.parseField(book, bookInfoRule.canReName);
+        searchBook.downloadUrls = await this.parseField(book, bookInfoRule.downloadUrls);
         bookList.push(searchBook);
       }
     }
@@ -266,16 +196,12 @@ class AnalyzeRule {
     let result = jp.value(data, rule.split('@js:')[0].trim());
     // 确保 result 是字符串，如果不是则初始化为空字符串
     result = typeof result === 'string' ? result : JSON.stringify(result);
-    const modifiedJsCode = jsCode.replace(
-      rule.split('@js:')[0].trim(),
-      `${result}`,
-    );
+    const modifiedJsCode = jsCode.replace(rule.split('@js:')[0].trim(), `${result}`);
     const sandbox = {
       result: result,
       java: {
         ajax: async (url: string) => {
           try {
-            url = url;
             const response = await fetch(url);
             let jsonData: any;
             const contentType = response.headers.get('content-type');
@@ -287,8 +213,8 @@ class AnalyzeRule {
             console.error('Error fetching data:', error);
           }
         },
-        timeFormat: (time: number) => new Date(time).toLocaleString(),
-      },
+        timeFormat: (time: number) => new Date(time).toLocaleString()
+      }
     };
 
     try {

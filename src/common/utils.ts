@@ -2,15 +2,13 @@
  * @Author: Andy
  * @Date: 2024-07-18 10:03:45
  * @LastEditors: Andy 454846659@qq.com
- * @LastEditTime: 2024-09-04 10:26:58
+ * @LastEditTime: 2024-09-04 12:45:36
  * @FilePath: /legado-harmony-server/src/common/utils.ts
  * @Description:
  */
 import * as cheerio from 'cheerio';
 
-const getSelectorIndex = (
-  selectorPart: string,
-): [string, number | number[]] => {
+const getSelectorIndex = (selectorPart: string): [string, number | number[]] => {
   let selector = '';
   let index;
   if (selectorPart.includes('.')) {
@@ -32,11 +30,7 @@ const getSelectorIndex = (
   }
   return [selector, index];
 };
-const parseRule = (
-  $: cheerio.CheerioAPI,
-  rule: string,
-  book?: cheerio.Element,
-): string | undefined => {
+const parseRule = ($: cheerio.CheerioAPI, rule: string, book?: cheerio.Element): string | undefined => {
   const rules = rule.split('&&');
   if (rules.length > 1) {
     return rules.map((rule) => parseRule($, rule, book)).join('');
@@ -69,9 +63,7 @@ const parseRule = (
   const selectorArr = selector.split(',');
 
   if (selectorArr.length > 1) {
-    return selectorArr
-      .map((selector) => parseRule($, `${selector}@${attrPart}`, book))
-      .join(',');
+    return selectorArr.map((selector) => parseRule($, `${selector}@${attrPart}`, book)).join(',');
   }
 
   if (['text', 'textNodes'].includes(attrPart || '')) {
@@ -114,26 +106,19 @@ export const isValidUrl = (url: string) => {
   }
 };
 // 解析规则
-export const analysisRules = (
-  $: cheerio.CheerioAPI,
-  rules: string,
-  book?: cheerio.Element,
-) => {
+export const analysisRules = ($: cheerio.CheerioAPI, rules: string, book?: cheerio.Element) => {
   if (!rules) {
     return undefined;
   }
 
-  const [rule, ...reg] = rules.split(/(@|##)/);
+  const [rule, ...reg] = rules.split('##');
 
   if (!book) {
     const startArr = rule.split('||');
     if (startArr.length > 1) {
       let result: cheerio.Cheerio<cheerio.Element> | undefined;
       for (let i = 0; i < startArr.length; i++) {
-        const resultInfo = analysisRules(
-          $,
-          startArr[i],
-        ) as cheerio.Cheerio<cheerio.Element>;
+        const resultInfo = analysisRules($, startArr[i]) as cheerio.Cheerio<cheerio.Element>;
         if (resultInfo.length > 0) {
           result = resultInfo;
           break;
@@ -180,10 +165,7 @@ export const analysisRules = (
     const match = removeDomain(href ?? '').match(regex);
     let newUrl = '';
     if (match?.length) {
-      newUrl = regContent.replace(
-        /\$(\d+)/g,
-        (_, groupIndex) => match[groupIndex],
-      );
+      newUrl = regContent.replace(/\$(\d+)/g, (_, groupIndex) => match[groupIndex]);
     }
     return newUrl;
   }
