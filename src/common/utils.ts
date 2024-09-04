@@ -1,14 +1,12 @@
 /*
  * @Author: Andy
  * @Date: 2024-07-18 10:03:45
- * @LastEditors: Andy andy.gui@gempoll.com
- * @LastEditTime: 2024-07-21 04:11:07
+ * @LastEditors: Andy 454846659@qq.com
+ * @LastEditTime: 2024-09-04 10:26:58
  * @FilePath: /legado-harmony-server/src/common/utils.ts
  * @Description:
  */
-import { Catch } from '@nestjs/common';
 import * as cheerio from 'cheerio';
-import { json } from 'stream/consumers';
 
 const getSelectorIndex = (
   selectorPart: string,
@@ -20,9 +18,9 @@ const getSelectorIndex = (
     if (selectorPart.includes('.')) {
       const indexStr = selectorPart.split('.').pop();
       if (indexStr && !isNaN(Number(indexStr))) {
-	index = Number(indexStr);
+        index = Number(indexStr);
       } else if (indexStr?.includes(':')) {
-	index = indexStr.split(':').map((item) => Number(item));
+        index = indexStr.split(':').map((item) => Number(item));
       }
       selector = selector.replace(/(\.?)([a-zA-Z]+)\.\d+(?::\d+)?$/, '$1$2');
     }
@@ -125,20 +123,21 @@ export const analysisRules = (
     return undefined;
   }
 
-  const [rule, ...reg] = rules.split('##');
+  const [rule, ...reg] = rules.split(/(@|##)/);
+
   if (!book) {
     const startArr = rule.split('||');
     if (startArr.length > 1) {
       let result: cheerio.Cheerio<cheerio.Element> | undefined;
       for (let i = 0; i < startArr.length; i++) {
-	const resultInfo = analysisRules(
-	  $,
-	  startArr[i],
-	) as cheerio.Cheerio<cheerio.Element>;
-	if (resultInfo.length > 0) {
-	  result = resultInfo;
-	  break;
-	}
+        const resultInfo = analysisRules(
+          $,
+          startArr[i],
+        ) as cheerio.Cheerio<cheerio.Element>;
+        if (resultInfo.length > 0) {
+          result = resultInfo;
+          break;
+        }
       }
       return result;
     }
@@ -182,8 +181,8 @@ export const analysisRules = (
     let newUrl = '';
     if (match?.length) {
       newUrl = regContent.replace(
-	/\$(\d+)/g,
-	(_, groupIndex) => match[groupIndex],
+        /\$(\d+)/g,
+        (_, groupIndex) => match[groupIndex],
       );
     }
     return newUrl;
@@ -192,9 +191,9 @@ export const analysisRules = (
 };
 
 export const parseJson = (str: string) => {
-   try {
+  try {
     return JSON.parse(str);
-   } catch{
-     return str
-   }
-}
+  } catch {
+    return str;
+  }
+};

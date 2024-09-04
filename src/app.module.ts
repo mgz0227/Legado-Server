@@ -6,7 +6,7 @@ import { AppSearchService } from './app.search.service';
 
 @Module({
   imports: [],
-  controllers: [AppController,AppSearchController],
-  providers: [AppService,AppSearchService],
+  controllers: [AppController, AppSearchController],
+  providers: [AppService, AppSearchService],
 })
 export class AppModule {}
