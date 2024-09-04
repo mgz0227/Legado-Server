@@ -2,13 +2,13 @@
 
 ## Installation
 
-```bash
+```shell
 $ pnpm install
 ```
 
 ## Running the app
 
-```bash
+```shell
 # development
 $ pnpm start
 
@@ -18,4 +18,14 @@ $ pnpm dev
 
 # production mode
 $ pnpm start:prod
+```
+
+## Deployment
+
+```shell
+# Start Service
+$ pnpm pm2
+
+# service crond restart
+$ pnpm pm2-restart
 ```
