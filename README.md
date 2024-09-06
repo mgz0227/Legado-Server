@@ -29,3 +29,15 @@ $ pnpm pm2
 # service crond restart
 $ pnpm pm2-restart
 ```
+
+## Deployment with docker
+
+build docker image from dockerfile
+```shell
+docker build -t legado-server . 
+```
+
+run the container
+```shell
+docker run -it --rm -p 3333:3333 --name legado-server legado-server
+```
